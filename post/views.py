@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from comment.serializers import CommentSerializer
 from drf_yasg.utils import swagger_auto_schema
-from like.models import Like
+from like.models import Like, Favorite
 
 
 
@@ -55,6 +55,19 @@ class PostViewSet(ModelViewSet):
             owner=request.user
         )
         return Response('успешно добавлено', 201)
+
+    @action(detail=True, methods=['POST'])
+    def toggle_favorite(self, request, pk=None):
+        post = self.get_object()
+        favorite = request.user.favorites.filter(post=post)
+        if favorite:
+            favorite.delete()
+            return Response('удалено из избранных', 204)
+        favorite = Favorite.objects.create(
+            post=post,
+            owner=request.user
+        )
+        return Response('добавлено в избранное', 201)
 
 
     # def get_queryset(self):
