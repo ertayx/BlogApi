@@ -10,7 +10,12 @@ class PostSerializer(serializers.ModelSerializer):
     )
     comments = serializers.SerializerMethodField(method_name='get_comments')
     likes = serializers.SerializerMethodField(method_name='get_likes_counter')
+    favorites = serializers.SerializerMethodField(method_name='get_favorites_counter')
 
+    def get_favorites_counter(self, instance):
+        favorites_counter = instance.favorites.all().count()
+        return favorites_counter
+    
     def get_likes_counter(self, instance):
         likes_counter = instance.likes.all().count()
         return likes_counter
