@@ -5,7 +5,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
-
+from like.models import Favorite
+from like.serializer import FavoriteSerializer
 
 class UserRegistration(APIView):
     def post(self, request):
@@ -17,6 +18,13 @@ class UserRegistration(APIView):
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
 
+    def get(self, request):
+        favorite = Favorite.objects.filter(owner=request.user).all()
+        serializer = FavoriteSerializer(favorite, many=True)
+        if serializer.data:
+            return Response(serializer.data, 200)
+        return Response('Нет избранных постов',204)
+    
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={'request':request})
         serializer.is_valid(raise_exception=True)
